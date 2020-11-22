@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+<title>Rotating Square</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">#version 300 es
+in vec4 vPosition;
+uniform float theta;
+out vec4 changeableColor;
+in vec4 vColor;
+
+void
+main()
+{
+    float s = sin( theta );
+    float c = cos( theta );
+
+    gl_Position.x = -s * vPosition.y + c * vPosition.x;
+    gl_Position.y =  s * vPosition.x + c * vPosition.y;
+    gl_Position.z = 0.0;
+    gl_Position.w = 1.0;
+    gl_PointSize = 10.0;
+    changeableColor = vColor;
+}
+
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">#version 300 es
+
+precision mediump float;
+out vec4 outColor;
+in vec4 changeableColor;
+
+void
+main()
+{
+    outColor = changeableColor ;
+}
+</script>
+
+
+<script type="text/javascript" src="webgl-utils.js"></script>
+<script type="text/javascript" src="initShaders.js"></script>
+<script type="text/javascript" src="MV.js"></script>
+<script type="text/javascript" src="rotatingSquare3.js"></script>
+</head>
+
+<canvas id="gl-canvas" width="512" height="512">
+    Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+<br>
+<body>
+
+
+<button id="Toggle">Toggle</button>
+<button id="Speed Up">Speed Up</button>
+<button id="Slow Down">Slow Down</button>
+<button id="Change">Color</button>
+
+
+
+
+</body>
+</html>
