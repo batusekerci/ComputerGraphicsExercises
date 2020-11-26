@@ -10,7 +10,11 @@ var theta = 0.0;
 var thetaLoc;
 var  ccv = true;
 var speed = 100;
-
+var cv = false;
+var go = 0;
+var isSpiral = false;
+var isScale = false;
+var turn = false;
 
 window.onload = function() {
     init();
@@ -62,7 +66,7 @@ function init() {
     const normalize = false;  
     const stride = 0;                                        
     const offset = 0;        
-    const scale_factor = [2, 2, 1, 1];
+    var scale_factor = [0.3, 0.3, 1, 1];
     let rotation = [];
 
     const vertex_location = gl.getAttribLocation(program, "a_position"); //get the vertex position
@@ -86,6 +90,8 @@ function init() {
     
     gl.clear(gl.COLOR_BUFFER_BIT); // Clear the canvas before we start drawing on it.
     
+    
+
     drawCircles(-0.5, -0.5, 0.5);
     drawCircles(-0.5, 0.5, 0.5);
     drawCircles(0.5, 0.5, 0.5);
@@ -115,7 +121,7 @@ function init() {
     
     gl.useProgram(program); //use the program
     gl.bindVertexArray(vao);
-    gl.uniform4fv(uniform_Location, scale_factor);
+    
     
     
     
@@ -165,26 +171,53 @@ function init() {
 
   // Draw the scene repeatedly
   function render(now) {
+    
     now *= 0.063;  // convert  , controls speed
-    const deltaTime = now - then;
+    var deltaTime = now - then;
     then = now;
     
-    if(ccv){
+    if(ccv ){
     rot -= a*deltaTime;
-    }
-    else{
-    rot += 0;
+    go=1;
     }
 
+    else if(cv){
+        rot += a*deltaTime;
+        go =2;
+        }
+
+    else{
+        rot += 0;
+        }
+
+        
     if (isOne){
         rot = 0;
         
     }    
+    if(isScale){
+        console.log("Scale begins");
+        console.log(scale_factor[0]);
+        
+        if(scale_factor[0] < 0.45 && turn == true){
+            scale_factor[0] += 0.005 ;
+            scale_factor[1] += 0.005 ;
+            if(scale_factor[0] > 0.45 ){turn = false;}
+        }
+        else if(scale_factor[0] > 0.15 && turn == false){
+            
+            scale_factor[0] -= 0.005 ;
+            scale_factor[1] -= 0.005 ;
+            console.log(scale_factor);
+            if(scale_factor[0] < 0.15 ){turn = true;}
+        }
 
+        
+              
+    }
     
-    gl.uniform1f(radiLocation, radi);
     printSineAndCosineForAnAngle(rot);
-   
+    gl.uniform4fv(uniform_Location, scale_factor);
     gl.uniform2fv(rotationLocation, rotation);
     
     draw();
@@ -211,71 +244,155 @@ gl.drawArrays(gl.TRIANGLE_STRIP, offset, 4); //draw the shape that has 4 vertice
 }
 
 
-//  function onKeyUp(event)
-// {
-//     if (event.key == '1')
-//     {
-//         isOne = true;
-        
-//     }
-//     else if (event.key == '2')
-//     {             
-//         isOne = false;                             // Control with
-//         isChange = false;
-        
-//     }
-
-//     else if (event.key == '3')
-//     {
-
-//         isChange = true;
-//     }
- 
- 
-// }
 
 
-// document.addEventListener('keyup', onKeyUp, false);
+
+
 
 document.getElementById("StartSpin").onclick = function (event) {
-    ccv = true;
+    
+    if(go=== 1){
+        ccv = true;
+    }
+    else if(go === 2){cv = true;}
+    
 };
 
 document.getElementById("StopSpin").onclick = function (event) {
     ccv = false;
+    cv= false;
 };
 
 
-document.getElementById("Speed Up").onclick = function (event) {
-    speed /= 2.0;
+document.getElementById("StartScale").onclick = function (event) {
+    isScale = true;
 };
 
-document.getElementById("Slow Down").onclick = function (event) {
+document.getElementById("StopScale").onclick = function (event) {
     
-    speed *= 2.0;
+    isScale = false;
+
+};
+
+document.getElementById("StartSpiral").onclick = function (event) {
+    isSpiral = true;
+};
+
+document.getElementById("StopSpiral").onclick = function (event) {
+    
+    isSpiral = false;
 
 };
 
 
-var x = document.getElementById("Control1").value;
+
+}
+
+function Control1() {
+    var x = document.getElementById("Control1").value;
  
     switch(x) {
     case "0":
-      isOne = true;
+        ccv = false;
+        cv = false;
       break;
 
    case "1":
-    now= now;
+    ccv = true;
+    
       break;
 
    case "2":
-    now *= 2.0;
+    a = 1.3;
+      break;
+
+    
+    case "3":
+    a = 1.5;
+      break;
+
+    
+    case "4":
+    a = 1.7;
+      break;
+
+    
+    case "5":
+    a = 1.9;
+      break;
+
+    case "6":
+    a = 2.2;
+      break;
+    
+     case "7":
+    a = 2.7;
+      break;
+
+      case "8":
+    a = 3.1;
+      break;
+
+      case "9":
+    a = 3.3;
+      break;
+
+      case "10":
+    a = 3.5;
+      break;
+
+      case "-1":
+    cv = true;
+    
+    
+      break;
+
+   case "-2":
+    a = 1.3;
     
       break;
 
     
+    case "-3":
+    a = 1.5;
+    
+      break;
+
+    
+    case "-4":
+    a = 1.7;
+    
+      break;
+
+    
+    case "-5":
+    a = 1.9;
+    
+      break;
+
+    case "-6":
+    a = 2.2;
+    
+      break;
+
+    case "-7":
+    a = 2.7;
+    
+      break;
+
+      case "-8":
+    a = 3.1;
+    
+      break;
+
+      case "-9":
+    a = 3.3;
+    
+      break;
+
+      case "-10":
+    a = 3.5;
+    
+      break;
+    }
 }
-
-
-}
-

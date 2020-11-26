@@ -12,7 +12,7 @@ const v_shader_2 = `#version 300 es
     uniform vec2 u_rotation;
 
     void main() {
-        vec4 scaledPos = a_position / scale_factor;
+        vec4 scaledPos = a_position * scale_factor;
         vec2 rotatedPosition = vec2(
             scaledPos.x * u_rotation.y + scaledPos.y * u_rotation.x,
             scaledPos.y * u_rotation.y - scaledPos.x * u_rotation.x);
