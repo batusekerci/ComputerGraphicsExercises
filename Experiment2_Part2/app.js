@@ -15,6 +15,7 @@ var go = 0;
 var isSpiral = false;
 var isScale = false;
 var turn = false;
+var go2 = false;
 
 window.onload = function() {
     init();
@@ -68,13 +69,15 @@ function init() {
     const offset = 0;        
     var scale_factor = [0.3, 0.3, 1, 1];
     let rotation = [];
-
+    var translation = [0, 0];
+    
     const vertex_location = gl.getAttribLocation(program, "a_position"); //get the vertex position
     const color_location = gl.getAttribLocation(program, "a_color"); //get the color position
     const uniform_Location = gl.getUniformLocation(program, "scale_factor");
     const rotationLocation = gl.getUniformLocation(program, "u_rotation");
     const radiLocation = gl.getUniformLocation(program, "radi");
-
+    const translationLocation = gl.getUniformLocation(
+      program, "u_translation");
     //create buffers for square
 
     const buffer_square = gl.createBuffer(); //create buffer for square
@@ -167,7 +170,7 @@ function init() {
   }
 
 
-
+  var p=0;
 
   // Draw the scene repeatedly
   function render(now) {
@@ -211,15 +214,32 @@ function init() {
             console.log(scale_factor);
             if(scale_factor[0] < 0.15 ){turn = true;}
         }
-
-        
-              
+      
     }
+    
+    if(isSpiral){
+      var array0 = [ 0 ,   0 ,   -0.05,  -0.1 , -0.2  , -0.3 , -0.3 , - 0.2 , -0.1 , 0 ,  0 ,   0.1 , 0.2 , 0.25 , 0.3 , 0.3 , 0.2 , 0.1 , 0];
+      var array1 = [-0.1, -0.15, -0.2 , -0.2 , -0.15 , -0.1 ,  0   ,  0.1 ,  0.2 ,  0.3, 0.3 ,  0.2 , 0.1 , 0.05 , 0   , -0.1 ,-0.2 , 0.1  ,  0];
+        
+      if(p != 15 && go2){
+        translation[0] = array0[p];
+        translation[1] = array1[p];
+        
+        console.log(p);
+        console.log(translation[0]);
+        p++;
+        }
+        else{
+          p=0;
+          go2 = true;
+        } 
+      
+    } 
     
     printSineAndCosineForAnAngle(rot);
     gl.uniform4fv(uniform_Location, scale_factor);
     gl.uniform2fv(rotationLocation, rotation);
-    
+    gl.uniform2fv(translationLocation, translation);
     draw();
     
     

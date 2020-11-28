@@ -10,6 +10,7 @@ const v_shader_2 = `#version 300 es
     out vec4 color;
     uniform vec4 scale_factor;
     uniform vec2 u_rotation;
+    uniform vec2 u_translation;
 
     void main() {
         vec4 scaledPos = a_position * scale_factor;
@@ -18,7 +19,7 @@ const v_shader_2 = `#version 300 es
             scaledPos.y * u_rotation.y - scaledPos.x * u_rotation.x);
 
         
-            gl_Position = vec4 (rotatedPosition,0,1);
+            gl_Position = vec4 (rotatedPosition,0,1) + vec4 (u_translation.x , u_translation.y , 0 ,0);
         color = a_color;
     }
 `;
