@@ -2,7 +2,7 @@
 
 var canvas;
 var gl;
-
+const RADIUS = 20;
 var NumVertices  = 36;
 
 var pointsArray = [];
@@ -130,12 +130,7 @@ window.onload = function init() {
     document.getElementById("radiusSlider").onchange = function() {
        radius = event.srcElement.value;
     };
-    document.getElementById("thetaSlider").onchange = function() {
-        theta = event.srcElement.value* Math.PI/180.0;
-    };
-    document.getElementById("phiSlider").onchange = function() {
-        phi = event.srcElement.value* Math.PI/180.0;
-    };
+    
     document.getElementById("aspectSlider").onchange = function() {
         aspect = event.srcElement.value;
     };
@@ -143,15 +138,57 @@ window.onload = function init() {
         fovy = event.srcElement.value;
     };
 
-    window.onkeydown = function( event ) {
-        var key = String.fromCharCode(event.keyCode);
-        if(key == 'p'){
-            islocked =!islocked
-        }
+    canvas.requestPointerLock = canvas.requestPointerLock ||
+                            canvas.mozRequestPointerLock;
 
-    };
+    document.exitPointerLock = document.exitPointerLock ||
+                           document.mozExitPointerLock;
     
 
+    document.onkeypress = function( evt ) {
+        evt = evt || window.event;
+        var charCode = evt.keyCode || evt.which;
+        var charStr = String.fromCharCode(charCode);       
+        switch( charStr ) {
+          case 'p':
+            islocked = !islocked;
+            console.log("p is pressed");
+            if(!islocked){
+                canvas.requestPointerLock();}
+                
+            else{
+                document.exitPointerLock();
+                }
+            break;
+
+        }
+    };
+
+    document.addEventListener('pointerlockchange', lockChangeAlert, false);
+    document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+
+    function lockChangeAlert() {
+        if (document.pointerLockElement === canvas ||
+            document.mozPointerLockElement === canvas) {
+          console.log('The pointer lock status is now locked');
+          document.addEventListener("mousemove", updatePosition, false);
+        } else {
+          console.log('The pointer lock status is now unlocked');  
+          document.removeEventListener("mousemove", updatePosition, false);
+        }
+      }
+      
+      
+      
+      
+      function updatePosition(e) {
+        theta += e.movementX;
+        phi += e.movementY;
+        
+        }
+      
+
+      
     render();
 }
 
@@ -160,8 +197,8 @@ var render = function(){
 
     gl.clear( gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
             
-    eye = vec3(radius*Math.sin(theta)*Math.cos(phi), 
-        radius*Math.sin(theta)*Math.sin(phi), radius*Math.cos(theta));
+    eye = vec3(radius*Math.sin(theta*0.01)*Math.cos(phi*0.01), 
+        radius*Math.sin(theta*0.01)*Math.sin(phi*0.01), radius*Math.cos(theta*0.01));
     modelViewMatrix = lookAt(eye, at , up);
     projectionMatrix = perspective(fovy, aspect, near, far);
 
