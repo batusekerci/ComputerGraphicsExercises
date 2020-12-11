@@ -14,8 +14,6 @@ async function init() {
         return;
     }
 
-  twgl.setAttributePrefix("a_");
-
   //create shaders
   const vertex_shader = gl.createShader(gl.VERTEX_SHADER);
   gl.shaderSource(vertex_shader, v_shader_2);
@@ -34,18 +32,66 @@ async function init() {
     alert("Could not compile fragment shader. \n\n" + info);
     return;
   }
-  const meshProgramInfo = twgl.createProgramInfo(gl, [vs, fs]);
 
-  const response = await fetch('dragon_10k.obj');
+
+  const response = await fetch('aa/dragon_10k.obj');
   const text = await response.text();
-  const data = parseOBJ(text);
-  const bufferInfo = webglUtils.createBufferInfoFromArrays(gl, data);
-  const vao = twgl.createVAOFromBufferInfo(gl, meshProgramInfo, bufferInfo);
+  const data = parseOBJ(text);      // datayı kullan
+  console.log(data);
+
+  const program = gl.createProgram();
+  gl.attachShader(program, vertex_shader);
+  gl.attachShader(program, fragment_shader);
+  gl.linkProgram(program); //link the program
+
+  if ( !gl.getProgramParameter( program, gl.LINK_STATUS) ) {
+    //if program is not linked
+    var info = gl.getProgramInfoLog(program);
+    alert("Could not link WebGL2 program. \n\n" + info);
+    return;
+  }
+
+
+  const numComponents = 3;
+  const type = gl.FLOAT;
+  const normalize = false;
+  const stride = 0;
+  const offset = 0;
+
+  const buffer_data = gl.createBuffer();
+  const vertex_location = gl.getAttribLocation(program, "a_position"); //get the vertex position
+  const color_location = gl.getUniformLocation(program, "color");
+
+
+  gl.clear(gl.COLOR_BUFFER_BIT);
+
+
+
+
+  const vao = gl.createVertexArray();
+  gl.bindVertexArray(vao);
+
+  gl.useProgram(program); //use the program
+  gl.bindVertexArray(vao);
+
+  gl.uniform3f(color_location, 0, 1.0, 0)
+
+  gl.bindBuffer(gl.ARRAY_BUFFER, buffer_data); //bind the buffer
+  /**/
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(data.position), gl.STATIC_DRAW);
+
+  /**/
+
+
+  gl.vertexAttribPointer(vertex_location, numComponents, type, normalize, stride, offset);
+  gl.enableVertexAttribArray(vertex_location); //enable attributes to use them
+  gl.clearColor(0.5, 0, 0.7, 1.0);  // Background color
+
+  gl.drawArrays(gl.TRIANGLES, 0, data.position.length/3);
 
   function parseOBJ(text) {
 
     const objPositions = [[0, 0, 0]];
-
 
     // same order as `f` indices
     const objVertexData = [
@@ -111,5 +157,6 @@ async function init() {
 
   };
 }
+
 
 }

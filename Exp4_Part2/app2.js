@@ -80,6 +80,8 @@ function init() {
       program, "u_translation");
     //create buffers for square
 
+    gl.clear(gl.COLOR_BUFFER_BIT);
+
     const buffer_square = gl.createBuffer(); //create buffer for square
     gl.bindBuffer(gl.ARRAY_BUFFER, buffer_square); //bind the buffer
     /**/
@@ -91,7 +93,7 @@ function init() {
 
     function draw() {
     
-    gl.clear(gl.COLOR_BUFFER_BIT); // Clear the canvas before we start drawing on it.
+     // Clear the canvas before we start drawing on it.
     
     
 
@@ -258,11 +260,6 @@ gl.vertexAttribPointer(color_location, 3, type, normalize, stride, square.length
 /**/
 gl.drawArrays(gl.TRIANGLE_STRIP, offset, 4); //draw the shape that has 4 vertices
 }
-
-
-
-
-
 
 
 document.getElementById("StartSpin").onclick = function (event) {
