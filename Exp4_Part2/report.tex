@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc}
+
+\title{Assignment 4}
+\author{  
+  Batuhan Şekerci, 21990982\\
+  Department of Computer Engineering\\
+  Hacettepe University\\
+  Ankara, Turkey \\
+  \texttt{b21990982@cs.hacettepe.edu.tr}
+}
+
+\usepackage{natbib}
+\usepackage{graphicx}
+\usepackage{subcaption}
+\usepackage{booktabs}
+
+\graphicspath{.}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+In Part 1, we will modify a webgl code to make it webgl2 code. After that, we make pyramid from square. Color of some faces will be changed with each other. The main part will be changing theta and phi values with mouse movement.
+
+In Part 2, we will use an obj file to create a scene with an object on the red flat surface. The model must be rotate and we can change its rotation speed. Then, we will create a camera which will be controllable. With the keyboard and mouse, we will see the scene from different angles.
+
+\section{Experiment}
+
+\subsection{Part 1}
+Simply by changing the 4 vertices of the cube with coordinate of origin, we can get a pyramid. When the order of colors is changed we can get our desired result. For the mouse control, I implemented pointer lock api. With this api, we can change the phi and theta values. So, we achieved the result.
+\subsection{Part 2}
+By using built-in “fetch” function, we got our data from obj file. Then with the “splitObj” function, our ready-to-use data is prepared. We sent this data to “drawArrays” function to show the object in canvas. After this, we created a surface. When this operations are completed, the main part of the experiment comes in. Projection matrix, camera matrix, view matrix and view projection matrix variables are the key concepts in this experiment. We can assign these variables by using the matrix functions we created such as inverse, multiply, translate etc. The “lookAt” function is implemented to make the camera point at our object. The last thing to do was to implement keyboard and mouse controls. We used pointer lock api for mouse controls.
+
+
+\begin{table}[!ht]
+  \caption{Methods}
+  \label{methods}
+  \centering
+  \begin{tabular}{llll}
+    \toprule
+    \cmidrule(r){1-4}
+    Method Name & Input(s) & Output(s) & Info\\
+    \midrule
+    requestAnimationFrame    & number   & render      & Creating animation\\
+    drawPlane & void & plane object & prepares the plane buffering \\
+    splitObj & text & Vertex data & prepares vertices from object file \\
+    drawDragon & void & dragon object & prepares the dragon buffering \\
+    lookAt  & cameraPosition, target, up & cameraMatrix & gives camera matrix\\
+    Other helper functions...\\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+\section{Conclusion}
+Pointer lock api allowed us to change the view of an object by manipulating the phi and theta values in the project. We learned how to import an object and show it on canvas. Matrices are used to generate desired views easily. We can manipulate the matrices by functions which a way we want to create a scene. “LookAt” function is an important function because it can be used in wide range.
+\bibliographystyle{plain}
+\bibliography{references}
+\end{document}
