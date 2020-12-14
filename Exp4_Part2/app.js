@@ -2,7 +2,10 @@
 
 var rot = 0;
 var speed = 2;
+var islocked = true;
 
+var theta  = 0.0;
+var phi    = 0.0;
 
 window.onload = function() {
     init();
@@ -88,10 +91,10 @@ async function init() {
   function drawPlane(){       //draw plane
 
     const plane = [
-        -0.5 , 0 , 0.5 ,
-        0.5 , 0, 0.5 ,
-        -0.5 , 0 , -0.5 ,
-        0.5 , 0 , -0.5
+        -1 , 0.02 , 1 ,
+      1 , 0.02, 1 ,
+        -1 , 0.02 , -1 ,
+      1 , 0.02 , -1
     ];
 
 
@@ -109,7 +112,7 @@ async function init() {
   }
 
   //**
-  var fieldOfViewRadians = degToRad(120);
+  var fieldOfViewRadians = degToRad(100);
   var cameraAngleRadians = degToRad(0);
 
   var then = 0;
@@ -125,11 +128,13 @@ async function init() {
     then = now;
 
 
-    var fPosition = [radius, 0, 0];
+    var fPosition = [radius*30, 0, 0];
 
     // Clear the canvas
     gl.clearColor(1, 1, 1, 1.0);  // Background color
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.enable(gl.DEPTH_TEST);
 
     drawDragon();
     // Bind the attribute/buffer set we want.
@@ -141,24 +146,23 @@ async function init() {
     // Compute the matrix
     var aspect = gl.canvas.clientWidth / gl.canvas.clientHeight;
     var zNear = 0.01;
-    var zFar = 2000;
+    var zFar = 200;
     var projectionMatrix = m4.perspective(fieldOfViewRadians, aspect, zNear, zFar);
+    // projectionMatrix = m4.translate(projectionMatrix, 0,0, 0.2);
 
     rot +=  speed*deltaTime;
 
     var cameraMatrix = m4.yRotation(cameraAngleRadians);
 
-
-
-
-    cameraMatrix = m4.translate(cameraMatrix, xValue, yValue, zValue);
+    cameraMatrix = m4.translate(cameraMatrix, 0, yValue, 0);
 
 
     var cameraPosition = [
-      cameraMatrix[12],
+      cameraMatrix[12] + xValue,
       cameraMatrix[13],
-      cameraMatrix[14],
+      cameraMatrix[14] + zValue,
     ];
+    console.log(cameraMatrix)
 
     var up = [0, 1, 0];
 
@@ -179,33 +183,29 @@ async function init() {
 
     var matrix = m4.translate(viewProjectionMatrix, x, 0, z);
 
-
     gl.uniformMatrix4fv(matrixLocation, false, matrix);
     // Draw the geometry.
-
-
 
     gl.drawArrays(gl.TRIANGLES, 0, data.position.length/3);
 
     drawPlane()
-    gl.uniform4f(colorLocation, 0.9, 0.75, 0.8,1.0);
+    gl.uniform4f(colorLocation, 0.9, 0.75, 0.8,1.0);   // color of plane
     gl.bindVertexArray(planevao);
 
-    var identitiyMatrix = [
-        1 , 0 ,0 , 0,
-        0 , 1 , 0 , 0,
-        0 , 0 , 1 , 0,
-        0 , 0 , 0 , 1
-    ]
-    gl.uniformMatrix4fv(matrixLocation, false, identitiyMatrix);
+    // move the projection space to view space (the space in front of
+    // the camera)
+
+    var viewProjectionMatrixPlane = m4.multiply(projectionMatrix, viewMatrix);
+
+    var planeMatrix = m4.translate(viewProjectionMatrixPlane, x, 0, z);
+    gl.uniformMatrix4fv(matrixLocation, false, planeMatrix);
 
     gl.drawArrays(gl.TRIANGLE_STRIP, offset, 4); //draw the shape that has 4 vertices
-
 
     requestAnimationFrame(render);
   }
 
-  requestAnimationFrame(render);
+
 
   function splitObj(text) {
 
@@ -276,6 +276,38 @@ async function init() {
   };
 }
 
+
+  canvas.requestPointerLock = canvas.requestPointerLock ||
+      canvas.mozRequestPointerLock;
+
+  document.exitPointerLock = document.exitPointerLock ||
+      document.mozExitPointerLock;
+
+
+  canvas.onclick = function() {
+    canvas.requestPointerLock();
+  }
+
+  document.addEventListener('pointerlockchange', lockChangeAlert, false);
+  document.addEventListener('mozpointerlockchange', lockChangeAlert, false);
+  function lockChangeAlert() {
+    if (document.pointerLockElement === canvas ||
+        document.mozPointerLockElement === canvas) {
+      console.log('The pointer lock status is now locked');
+      document.addEventListener("mousemove", updatePosition, false);
+    } else {
+      console.log('The pointer lock status is now unlocked');
+      document.removeEventListener("mousemove", updatePosition, false);
+    }
+  }
+
+
+  function updatePosition(e) {
+    xValue += e.movementX * 0.001;
+    yValue += e.movementY * 0.001;
+
+  }
+
   window.onkeydown = function( event ) {
     String.fromCharCode(event.keyCode);
     switch( event.keyCode ) {
@@ -297,7 +329,7 @@ async function init() {
 
       case  39:
         console.log("right arrow");
-        xValue -= 0.1;
+        xValue += 0.1;
         break;
 
       case  40:
@@ -307,20 +339,22 @@ async function init() {
 
       case  37:
         console.log("left arrow");
-        xValue += 0.1;
+        xValue -= 0.1;
         break;
 
       case  33:
         console.log("page up");
-        yValue -= 0.01;
+        yValue += 0.01;
         break;
 
       case  34:
         console.log("page down");
-        yValue += 0.01;
+        yValue -= 0.01;
         break;
     }
   };
+
+  requestAnimationFrame(render);
 }
 
 var m4 = {
